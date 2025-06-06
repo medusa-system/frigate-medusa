@@ -187,3 +187,20 @@ cameras:
         inertia: 1
         speed_threshold: 20 # unit is in kph or mph, depending on how unit_system is set (see above)
 ```
+
+### Direction Filter
+
+You can filter objects in a zone based on the direction they are moving. Provide
+an `angle_range` with a start and end angle in degrees. Angles are measured
+counter-clockwise from the right side of the frame.
+
+```yaml
+cameras:
+  name_of_your_camera:
+    zones:
+      driveway:
+        coordinates: ...
+        angle_range: 140,220
+```
+Only objects with a movement angle between 140° and 220° will be considered
+inside the `driveway` zone.

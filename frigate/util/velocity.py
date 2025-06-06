@@ -125,3 +125,17 @@ def calculate_real_world_speed(
         angle += 360
 
     return speed_magnitude, angle
+
+
+def calculate_pixel_angle(velocity_pixels) -> float:
+    """Return the angle of a velocity vector in pixel units."""
+    if not isinstance(velocity_pixels, np.ndarray):
+        velocity_pixels = np.array(velocity_pixels)
+
+    avg_velocity_pixels = velocity_pixels.mean(axis=0)
+    dx, dy = avg_velocity_pixels
+    angle = math.degrees(math.atan2(dy, dx))
+    if angle < 0:
+        angle += 360
+
+    return angle

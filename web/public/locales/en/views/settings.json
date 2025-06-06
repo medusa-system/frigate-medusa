@@ -219,6 +219,11 @@
           "mustBeGreaterOrEqualZero": "Loitering time must be greater than or equal to 0."
         }
       },
+      "angle": {
+        "error": {
+          "range": "Angle must be between 0 and 360."
+        }
+      },
       "speed": {
         "error": {
           "mustBeGreaterOrEqualTo": "Speed threshold must greater than or equal to 0.1."
@@ -291,6 +296,12 @@
             "loiteringTimeError": "Zones with loitering times greater than 0 should not be used with speed estimation."
           }
         }
+      },
+      "directionFilter": {
+        "title": "Direction Filter",
+        "desc": "Only count objects moving within this angle range (degrees).",
+        "start": "Start angle",
+        "end": "End angle"
       },
       "toast": {
         "success": "Zone ({{zoneName}}) has been saved. Restart Frigate to apply changes."

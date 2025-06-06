@@ -38,6 +38,10 @@ class ZoneConfig(BaseModel):
         ge=0.1,
         title="Minimum speed value for an object to be considered in the zone.",
     )
+    angle_range: Optional[Union[str, list[str]]] = Field(
+        default=None,
+        title="Allowed movement angle range (start,end) in degrees.",
+    )
     objects: Union[str, list[str]] = Field(
         default_factory=list,
         title="List of objects that can trigger the zone.",
@@ -78,6 +82,28 @@ class ZoneConfig(BaseModel):
             raise ValueError("distances must have exactly 4 values")
 
         return distances
+
+    @field_validator("angle_range", mode="before")
+    @classmethod
+    def validate_angle_range(cls, v):
+        if v is None:
+            return None
+
+        if isinstance(v, str):
+            angles = [float(val) for val in v.split(",")]
+        elif isinstance(v, list):
+            angles = [float(val) for val in v]
+        else:
+            raise ValueError("Invalid type for angle_range")
+
+        if len(angles) != 2:
+            raise ValueError("angle_range must have exactly 2 values")
+
+        min_a, max_a = angles
+        if not (0 <= min_a <= 360 and 0 <= max_a <= 360):
+            raise ValueError("angle_range values must be between 0 and 360")
+
+        return [str(min_a), str(max_a)]
 
     @model_validator(mode="after")
     def check_loitering_time_constraints(self):

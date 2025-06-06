@@ -44,6 +44,12 @@ class TestHttp(unittest.TestCase):
                         "width": 1920,
                         "fps": 5,
                     },
+                    "zones": {
+                        "driveway": {
+                            "coordinates": "0,0,1,0,1,1,0,1",
+                            "angle_range": "140,220",
+                        }
+                    },
                 }
             },
         }
@@ -354,6 +360,32 @@ class TestHttp(unittest.TestCase):
             recording = response.json()
             assert recording
             assert recording[0]["id"] == id
+
+    def test_zone_direction(self):
+        app = create_fastapi_app(
+            FrigateConfig(**self.minimal_config),
+            self.db,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        )
+
+        with TestClient(app) as client:
+            resp = client.get("/zones/front_door/driveway/direction")
+            assert resp.status_code == 200
+            assert resp.json() == {"angle_range": ["140", "220"]}
+
+            resp = client.put(
+                "/zones/front_door/driveway/direction",
+                json={"angle_range": ["100", "200"]},
+                headers={"remote-role": "admin"},
+            )
+            assert resp.status_code == 200
+            resp = client.get("/zones/front_door/driveway/direction")
+            assert resp.json()["angle_range"] == ["100", "200"]
 
 
 def _insert_mock_event(

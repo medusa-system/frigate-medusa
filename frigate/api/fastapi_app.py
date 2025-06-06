@@ -1,4 +1,5 @@
 import logging
+from contextlib import asynccontextmanager
 from typing import Optional
 
 from fastapi import FastAPI, Request
@@ -7,7 +8,8 @@ from playhouse.sqliteq import SqliteQueueDatabase
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
-from starlette_context import middleware, plugins
+from starlette_context import plugins
+from starlette_context.middleware import RawContextMiddleware
 from starlette_context.plugins import Plugin
 
 from frigate.api import app as main_app
@@ -33,6 +35,12 @@ from frigate.stats.emitter import StatsEmitter
 from frigate.storage import StorageMaintainer
 
 logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("FastAPI started")
+    yield
 
 
 def check_csrf(request: Request) -> bool:
@@ -63,12 +71,13 @@ def create_fastapi_app(
     app = FastAPI(
         debug=False,
         swagger_ui_parameters={"apisSorter": "alpha", "operationsSorter": "alpha"},
+        lifespan=lifespan,
     )
 
     # update the request_address with the x-forwarded-for header from nginx
     # https://starlette-context.readthedocs.io/en/latest/plugins.html#forwarded-for
     app.add_middleware(
-        middleware.ContextMiddleware,
+        RawContextMiddleware,
         plugins=(plugins.ForwardedForPlugin(),),
     )
 
@@ -93,10 +102,6 @@ def create_fastapi_app(
         if not database.is_closed():
             database.close()
         return response
-
-    @app.on_event("startup")
-    async def startup():
-        logger.info("FastAPI started")
 
     # Rate limiter (used for login endpoint)
     if frigate_config.auth.failed_login_rate_limit is None:

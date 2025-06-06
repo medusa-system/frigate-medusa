@@ -102,8 +102,13 @@ class ZoneConfig(BaseModel):
         min_a, max_a = angles
         if not (0 <= min_a <= 360 and 0 <= max_a <= 360):
             raise ValueError("angle_range values must be between 0 and 360")
+            
+        def fmt(val: float) -> str:
+            return str(int(val)) if float(val).is_integer() else str(val)
 
-        return [str(min_a), str(max_a)]
+        return [fmt(min_a), fmt(max_a)]
+
+
 
     @model_validator(mode="after")
     def check_loitering_time_constraints(self):

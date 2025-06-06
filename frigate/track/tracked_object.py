@@ -27,7 +27,7 @@ from frigate.util.image import (
     is_better_thumbnail,
 )
 from frigate.util.object import box_inside
-from frigate.util.velocity import calculate_real_world_speed
+from frigate.util.velocity import calculate_pixel_angle, calculate_real_world_speed
 
 logger = logging.getLogger(__name__)
 
@@ -185,6 +185,16 @@ class TrackedObject:
 
             # check if the object is in the zone
             if cv2.pointPolygonTest(contour, bottom_center, False) >= 0:
+                if zone.angle_range:
+                    angle = calculate_pixel_angle(obj_data["estimate_velocity"])
+                    self.velocity_angle = sanitize_float(angle)
+                    start, end = [float(a) for a in zone.angle_range]
+                    if start <= end:
+                        if not (start <= angle <= end):
+                            continue
+                    else:
+                        if not (angle >= start or angle <= end):
+                            continue
                 # if the object passed the filters once, dont apply again
                 if name in self.current_zones or not zone_filtered(self, zone.filters):
                     # Calculate speed first if this is a speed zone

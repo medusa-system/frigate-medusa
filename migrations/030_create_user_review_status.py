@@ -74,7 +74,7 @@ def migrate(migrator, database, fake=False, **kwargs):
                 )
 
     if not fake:  # Only run data migration if not faking
-        migrator.python(migrate_data)
+        migrator.run(migrate_data)
 
     migrator.sql('ALTER TABLE "reviewsegment" DROP COLUMN "has_been_reviewed"')
 

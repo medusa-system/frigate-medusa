@@ -14,3 +14,7 @@ cameras:
       height: 1080
       width: 1920
       fps: 5
+    zones:
+      driveway:
+        coordinates: 0,0,1,0,1,1,0,1
+        angle_range: 140,220

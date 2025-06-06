@@ -730,6 +730,9 @@ cameras:
         inertia: 3
         # Optional: Number of seconds that an object must loiter to be considered in the zone (default: shown below)
         loitering_time: 0
+        # Optional: Only count objects moving in this angle range
+        # Angles are measured counter-clockwise from the right side of the frame
+        angle_range: 140,220
         # Optional: List of objects that can trigger this zone (default: all tracked objects)
         objects:
           - person

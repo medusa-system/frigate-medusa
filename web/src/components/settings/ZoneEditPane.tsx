@@ -103,6 +103,17 @@ export default function ZoneEditPane({
       : [undefined, undefined, undefined, undefined];
   }, [polygon, config]);
 
+  const [angleStart, angleEnd] = useMemo(() => {
+    const range =
+      polygon?.camera &&
+      polygon?.name &&
+      config?.cameras[polygon.camera]?.zones[polygon.name]?.angle_range;
+
+    return Array.isArray(range)
+      ? [parseFloat(range[0]) || 0, parseFloat(range[1]) || 0]
+      : [undefined, undefined];
+  }, [polygon, config]);
+
   const formSchema = z
     .object({
       name: z
@@ -206,6 +217,18 @@ export default function ZoneEditPane({
         })
         .optional()
         .or(z.literal("")),
+      angle_start: z.coerce
+        .number()
+        .min(0, { message: t("masksAndZones.form.angle.error.range") })
+        .max(360, { message: t("masksAndZones.form.angle.error.range") })
+        .optional()
+        .or(z.literal("")),
+      angle_end: z.coerce
+        .number()
+        .min(0, { message: t("masksAndZones.form.angle.error.range") })
+        .max(360, { message: t("masksAndZones.form.angle.error.range") })
+        .optional()
+        .or(z.literal("")),
     })
     .refine(
       (data) => {
@@ -260,6 +283,8 @@ export default function ZoneEditPane({
         polygon?.camera &&
         polygon?.name &&
         config?.cameras[polygon.camera]?.zones[polygon.name]?.speed_threshold,
+      angle_start: angleStart,
+      angle_end: angleEnd,
     },
   });
 
@@ -289,6 +314,8 @@ export default function ZoneEditPane({
         lineC,
         lineD,
         speed_threshold,
+        angle_start,
+        angle_end,
       }: ZoneFormValuesType, // values submitted via the form
       objects: string[],
     ) => {
@@ -408,9 +435,20 @@ export default function ZoneEditPane({
         }
       }
 
+      let angleRangeQuery = "";
+      if (angle_start !== "" && angle_end !== "") {
+        angleRangeQuery = `&cameras.${polygon?.camera}.zones.${zoneName}.angle_range=${angle_start},${angle_end}`;
+      } else if (
+        polygon?.camera &&
+        polygon?.name &&
+        config?.cameras[polygon.camera]?.zones[polygon.name]?.angle_range
+      ) {
+        angleRangeQuery = `&cameras.${polygon?.camera}.zones.${zoneName}.angle_range`;
+      }
+
       axios
         .put(
-          `config/set?cameras.${polygon?.camera}.zones.${zoneName}.coordinates=${coordinates}${inertiaQuery}${loiteringTimeQuery}${speedThresholdQuery}${distancesQuery}${objectQueries}${alertQueries}${detectionQueries}`,
+          `config/set?cameras.${polygon?.camera}.zones.${zoneName}.coordinates=${coordinates}${inertiaQuery}${loiteringTimeQuery}${speedThresholdQuery}${angleRangeQuery}${distancesQuery}${objectQueries}${alertQueries}${detectionQueries}`,
           { requires_restart: 0 },
         )
         .then((res) => {
@@ -827,13 +865,51 @@ export default function ZoneEditPane({
                           {...field}
                         />
                       </FormControl>
-                      <FormDescription>
-                        {t("masksAndZones.zones.speedThreshold.desc")}
-                      </FormDescription>
+                    <FormDescription>
+                      {t("masksAndZones.zones.speedThreshold.desc")}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex space-x-2">
+                <FormField
+                  control={form.control}
+                  name="angle_start"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>
+                        {t("masksAndZones.zones.directionFilter.start")}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          className="text-md w-full border border-input bg-background p-2 hover:bg-accent hover:text-accent-foreground dark:[color-scheme:dark]"
+                          {...field}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="angle_end"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>
+                        {t("masksAndZones.zones.directionFilter.end")}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          className="text-md w-full border border-input bg-background p-2 hover:bg-accent hover:text-accent-foreground dark:[color-scheme:dark]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               </>
             )}
 

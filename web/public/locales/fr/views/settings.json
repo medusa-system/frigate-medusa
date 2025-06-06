@@ -320,6 +320,11 @@
           "mustBeGreaterOrEqualZero": "Le temps de latence doit être supérieur ou égal à 0."
         }
       },
+      "angle": {
+        "error": {
+          "range": "L'angle doit être compris entre 0 et 360."
+        }
+      },
       "inertia": {
         "error": {
           "mustBeAboveZero": "L'inertie doit être supérieure à 0."
@@ -366,6 +371,12 @@
             "pointLengthError": "L'estimation de vitesse a été désactivée pour cette zone. Les zones avec estimation de vitesse doivent comporter exactement 4 points."
           }
         }
+      },
+      "directionFilter": {
+        "title": "Filtre de direction",
+        "desc": "Ne compter que les objets se déplaçant dans cette plage d'angles (degrés).",
+        "start": "Angle de début",
+        "end": "Angle de fin"
       },
       "point_one": "{{count}} point",
       "point_many": "{{count}} points",

@@ -80,6 +80,7 @@ Create and place these files in a `debug` folder in the root of the repo. This i
 VS Code will start the Docker Compose file for you and open a terminal window connected to `frigate-dev`.
 
 - Depending on what hardware you're developing on, you may need to amend `docker-compose.yml` in the project root to pass through a USB Coral or GPU for hardware acceleration.
+- Run `make version` before `python3 -m frigate` if running outside the dev container to generate `frigate/version.py`.
 - Run `python3 -m frigate` to start the backend.
 - In a separate terminal window inside VS Code, change into the `web` directory and run `npm install && npm run dev` to start the frontend.
 
@@ -153,6 +154,9 @@ cd web && npm install
 ```console
 cd web && npm run dev
 ```
+The dev server listens on port `5173`, which is forwarded automatically by the
+dev container (see `.devcontainer/devcontainer.json`). Open
+`http://localhost:5173` in your browser to view the UI.
 
 ##### 3a. Run the development server against a non-local instance
 
